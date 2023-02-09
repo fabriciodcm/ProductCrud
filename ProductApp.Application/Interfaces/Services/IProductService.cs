@@ -7,7 +7,7 @@ namespace ProductApp.Application.Interfaces.Services
 {
     public interface IProductService
     {
-        public ProductPagination Filter( int take,  int skip, string Description);
+        public FilterProductDTO Filter( int take,  int skip, string Description);
         ProductDTO Find(long id);
         long Add(PostProductDTO item);
         bool Remove(long id);

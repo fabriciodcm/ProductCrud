@@ -24,7 +24,7 @@ namespace ProductApp.Application.Controllers
 
         // GET: api/<ProductsController>
         [HttpGet]
-        public ActionResult<ProductPagination> Get([FromQuery]int take = 10,[FromQuery] int skip = 0,[FromQuery] string Description = "")
+        public ActionResult<FilterProductDTO> Get([FromQuery]int take = 10,[FromQuery] int skip = 0,[FromQuery] string Description = "")
         {
             return Ok(_productService.Filter(take,skip,Description));
         }

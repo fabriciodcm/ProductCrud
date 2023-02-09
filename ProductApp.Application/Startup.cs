@@ -36,6 +36,10 @@ namespace ProductApp.Application
 
             //Adicionado Config para rodar banco local
             services.AddDbContext<DataContext>(opt => opt.UseInMemoryDatabase("database"));
+
+            //Maps the Models to DTOs 
+            services.AddAutoMapper(AppDomain.CurrentDomain.GetAssemblies());
+
             //Dependency Injection
             services.AddTransient<IProductRepository, ProductRepository>();
             services.AddTransient<IProductService, ProductService>();

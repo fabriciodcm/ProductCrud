@@ -1,4 +1,5 @@
-﻿using ProductApp.Application.Interfaces.Services;
+﻿using AutoMapper;
+using ProductApp.Application.Interfaces.Services;
 using ProductApp.Application.Models;
 using ProductApp.Domain.Interfaces.Pagination;
 using ProductApp.Domain.Interfaces.Repository;
@@ -11,30 +12,16 @@ namespace ProductApp.Application.Services
     {
         private IProductRepository _productRepository;
         private IUnitOfWork _uow;
-        public ProductService(IProductRepository productRepository, IUnitOfWork uow)
+        private IMapper _mapper;
+        public ProductService(IProductRepository productRepository, IUnitOfWork uow, IMapper mapper)
         {
             _productRepository = productRepository;
             _uow = uow;
+            _mapper = mapper;
         }
         public long Add(PostProductDTO item)
         {
-            var prd = new Product()
-            {
-                Description = item.Description,
-                SupplierId = item.SupplierId,
-                ValidateDate = item.ValidateDate,
-                FabricationDate = item.FabricationDate,
-                IsActive = true
-            };
-            if (item.Supplier != null)
-            {
-                prd.Supplier = new Supplier()
-                {
-                    Description = item.Supplier.Description,
-                    CNPJ = item.Supplier.CNPJ,
-                    IsActive = true
-                };
-            }
+            Product prd = _mapper.Map<Product>(item);
             _productRepository.Add(prd);
             _uow.Commit();
             return prd.Id;
@@ -45,17 +32,14 @@ namespace ProductApp.Application.Services
             var prd = _productRepository.Find(item.Id);
             if (prd != null)
             {
-                prd.Description = item.Description;
-                prd.SupplierId = item.SupplierId;
-                prd.ValidateDate = item.ValidateDate;
-                prd.FabricationDate = item.FabricationDate;
+                _mapper.Map(item, prd);
                 _productRepository.Edit(prd);
                 return _uow.Commit();
             }
             return false;
         }
 
-        public ProductPagination Filter(int take, int skip, string Description)
+        public FilterProductDTO Filter(int take, int skip, string Description)
         {
             ProductPagination pagination = new ProductPagination()
             {
@@ -63,7 +47,9 @@ namespace ProductApp.Application.Services
                 take = take,
                 Description = Description,
             };
-            return _productRepository.Filter(pagination);
+            _productRepository.Filter(pagination);
+            var products = _mapper.Map<FilterProductDTO>(pagination);
+            return products;
         }
 
         public ProductDTO Find(long id)
@@ -71,14 +57,7 @@ namespace ProductApp.Application.Services
             var prd = _productRepository.Find(id);
 
             if (prd != null)
-                return new ProductDTO()
-                {
-                    Id = prd.Id,
-                    Description = prd.Description,
-                    ValidateDate = prd.ValidateDate,
-                    FabricationDate = prd.FabricationDate,
-                    SupplierId = prd.SupplierId,
-                };
+                return _mapper.Map<ProductDTO>(prd);
 
             return null;
         }

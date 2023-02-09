@@ -12,5 +12,7 @@ namespace ProductApp.Application.Models
         public DateTime? FabricationDate { get; set; }
         public DateTime? ValidateDate { get; set; }
         public long SupplierId { get; set; }
+        public SupplierDTO Supplier { get; set; }
+        public bool IsActive { get; set; }
     }
 }
