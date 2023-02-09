@@ -1,6 +1,10 @@
 ﻿using Microsoft.AspNetCore.Mvc;
+using ProductApp.Application.Models;
+using ProductApp.Domain.Interfaces.Pagination;
 using ProductApp.Domain.Interfaces.Repository;
 using ProductApp.Domain.Models;
+using ProductApp.Domain.Models.Pagination;
+using System;
 using System.Collections.Generic;
 
 // For more information on enabling Web API for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
@@ -19,9 +23,16 @@ namespace ProductApp.Application.Controllers
 
         // GET: api/<ProductsController>
         [HttpGet]
-        public IEnumerable<Product> Get()
+        public ProductPagination Get([FromQuery]int take = 10,[FromQuery] int skip = 0,[FromQuery] string Description = "")
         {
-            return _productRepository.Filter(null,null,null);
+            ProductPagination pagination = new ProductPagination()
+            {
+                skip = skip,
+                take = take,
+                Description = Description,
+            };
+
+            return _productRepository.Filter(pagination);
         }
 
         // GET api/<ProductsController>/5
@@ -54,5 +65,6 @@ namespace ProductApp.Application.Controllers
             _productRepository.Remove(_productRepository.Find(id));
             _productRepository.SaveChanges();
         }
+
     }
 }

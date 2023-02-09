@@ -2,6 +2,7 @@
 using ProductApp.Data.Context;
 using ProductApp.Domain.Interfaces.Repository;
 using ProductApp.Domain.Models;
+using ProductApp.Domain.Models.Pagination;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -16,18 +17,28 @@ namespace ProductApp.Data.Repository
         {
         }
 
-        public List<Product> Filter(string Description, DateTime? FabricationDate, DateTime? ValidateDate)
+        public ProductPagination Filter(ProductPagination pagination)
         {
+
+
             IQueryable<Product> products = List().Include(x => x.Supplier);
 
-            if (!string.IsNullOrEmpty(Description))
-                products = products.Where(x => x.Description == Description);
-            if (FabricationDate.HasValue)
-                products = products.Where(x => x.FabricationDate.Date == FabricationDate.Value.Date);
-            if (ValidateDate.HasValue)
-                products = products.Where(x => x.ValidateDate.Date == ValidateDate.Value.Date);
+            if (!string.IsNullOrEmpty(pagination.Description))
+                products = products.Where(x => x.Description == pagination.Description);
+            if (pagination.FabricationDate.HasValue)
+                products = products.Where(x => x.FabricationDate.Value.Date == pagination.FabricationDate.Value.Date);
+            if (pagination.ValidateDate.HasValue)
+                products = products.Where(x => x.ValidateDate.Value.Date == pagination.ValidateDate.Value.Date);
 
-            return products.AsNoTracking().ToList();
+            pagination.count = products.Count();
+
+            pagination.rows = products.AsNoTracking()
+                .Skip(pagination.skip)
+                .Take(pagination.take)
+                .OrderBy(x => x.Id)
+                .ToList();
+
+            return pagination;
         }
     }
 }

@@ -1,4 +1,6 @@
-﻿using ProductApp.Domain.Models;
+﻿using ProductApp.Domain.Interfaces.Pagination;
+using ProductApp.Domain.Models;
+using ProductApp.Domain.Models.Pagination;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -9,6 +11,6 @@ namespace ProductApp.Domain.Interfaces.Repository
 {
     public interface IProductRepository : IRepository<Product>
     {
-        public List<Product> Filter(string Description, DateTime? FabricationDate, DateTime? ValidateDate);
+        public ProductPagination Filter(ProductPagination query);
     }
 }
