@@ -11,12 +11,12 @@ namespace ProductApp.Application.Services
     {
         private IProductRepository _productRepository;
         private IUnitOfWork _uow;
-        public ProductService(IProductRepository productRepository, IUnitOfWork uow) 
+        public ProductService(IProductRepository productRepository, IUnitOfWork uow)
         {
             _productRepository = productRepository;
             _uow = uow;
         }
-        public void Add(PostProductDTO item)
+        public long Add(PostProductDTO item)
         {
             var prd = new Product()
             {
@@ -26,19 +26,21 @@ namespace ProductApp.Application.Services
                 FabricationDate = item.FabricationDate,
                 IsActive = true
             };
-            if (item.Supplier != null) {
+            if (item.Supplier != null)
+            {
                 prd.Supplier = new Supplier()
                 {
-                    Description= item.Supplier.Description,
+                    Description = item.Supplier.Description,
                     CNPJ = item.Supplier.CNPJ,
                     IsActive = true
                 };
             }
             _productRepository.Add(prd);
             _uow.Commit();
+            return prd.Id;
         }
 
-        public void Edit(PutProductDTO item)
+        public bool Edit(PutProductDTO item)
         {
             var prd = _productRepository.Find(item.Id);
             if (prd != null)
@@ -48,8 +50,9 @@ namespace ProductApp.Application.Services
                 prd.ValidateDate = item.ValidateDate;
                 prd.FabricationDate = item.FabricationDate;
                 _productRepository.Edit(prd);
-                _uow.Commit();
+                return _uow.Commit();
             }
+            return false;
         }
 
         public ProductPagination Filter(int take, int skip, string Description)
@@ -66,24 +69,29 @@ namespace ProductApp.Application.Services
         public ProductDTO Find(long id)
         {
             var prd = _productRepository.Find(id);
-            return new ProductDTO()
-            {
-                Id = prd.Id,
-                Description = prd.Description,
-                ValidateDate = prd.ValidateDate,
-                FabricationDate = prd.FabricationDate,
-                SupplierId = prd.SupplierId,
-            };
+
+            if (prd != null)
+                return new ProductDTO()
+                {
+                    Id = prd.Id,
+                    Description = prd.Description,
+                    ValidateDate = prd.ValidateDate,
+                    FabricationDate = prd.FabricationDate,
+                    SupplierId = prd.SupplierId,
+                };
+
+            return null;
         }
 
-        public void Remove(long id)
+        public bool Remove(long id)
         {
             var prd = _productRepository.Find(id);
             if (prd != null)
             {
                 _productRepository.Remove(prd);
-                _uow.Commit();
+                return _uow.Commit();
             }
+            return false;
         }
     }
 }

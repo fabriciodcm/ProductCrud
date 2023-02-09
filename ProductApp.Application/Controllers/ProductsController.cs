@@ -24,37 +24,73 @@ namespace ProductApp.Application.Controllers
 
         // GET: api/<ProductsController>
         [HttpGet]
-        public ProductPagination Get([FromQuery]int take = 10,[FromQuery] int skip = 0,[FromQuery] string Description = "")
+        public ActionResult<ProductPagination> Get([FromQuery]int take = 10,[FromQuery] int skip = 0,[FromQuery] string Description = "")
         {
-            return _productService.Filter(take,skip,Description);
+            return Ok(_productService.Filter(take,skip,Description));
         }
 
         // GET api/<ProductsController>/5
-        [HttpGet("{id}")]
-        public ProductDTO Get(long id)
+        [HttpGet("{id}", Name = "GetProductById")]
+        public ActionResult<ProductDTO> Get(long id)
         {
-            return _productService.Find(id);
+            if (id <= 0)
+                return BadRequest("Invalid argument");
+
+            var product = _productService.Find(id);
+            
+            if(product != null)
+                return Ok(product);
+
+            return NotFound();
         }
 
         // POST api/<ProductsController>
         [HttpPost]
-        public void Post([FromBody] PostProductDTO productDTO)
+        public IActionResult Post([FromBody] PostProductDTO productDTO)
         {
-            _productService.Add(productDTO);
+            if (productDTO.FabricationDate.HasValue && productDTO.ValidateDate.HasValue 
+                    && productDTO.FabricationDate.Value.Date >= productDTO.ValidateDate.Value.Date)
+                return BadRequest("Invalid argument - Invalid ValidateDate");
+
+            var Id = _productService.Add(productDTO);
+            
+            if (Id > 0) {
+                var product = _productService.Find(Id);
+                return CreatedAtRoute("GetProductById", new { Id = Id }, product);
+            }
+
+            return BadRequest("Product not inserted");
+
         }
 
         // PUT api/<ProductsController>/5
         [HttpPut("{id}")]
-        public void Put(long id, [FromBody] PutProductDTO productDTO)
+        public IActionResult Put(long id, [FromBody] PutProductDTO productDTO)
         {
-            _productService.Edit(productDTO);
+            if (id <= 0 || id != productDTO.Id)
+                return BadRequest("Invalid argument - Invalid Id");
+
+            if (productDTO.FabricationDate.HasValue && productDTO.ValidateDate.HasValue
+                    && productDTO.FabricationDate.Value.Date >= productDTO.ValidateDate.Value.Date)
+                return BadRequest("Invalid argument - Invalid ValidateDate");
+
+            if(_productService.Edit(productDTO))
+                return NoContent();
+
+            return BadRequest("Register not updated");
         }
 
         // DELETE api/<ProductsController>/5
         [HttpDelete("{id}")]
-        public void Delete(long id)
+        public IActionResult Delete(long id)
         {
-            _productService.Remove(id);
+            if (id <= 0)
+                return BadRequest("Invalid argument - Invalid Id");
+
+            if (_productService.Remove(id))
+                return NoContent();
+
+            return BadRequest("Register not deleted");
         }
 
     }

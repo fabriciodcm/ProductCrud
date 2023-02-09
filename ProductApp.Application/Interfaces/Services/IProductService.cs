@@ -9,8 +9,8 @@ namespace ProductApp.Application.Interfaces.Services
     {
         public ProductPagination Filter( int take,  int skip, string Description);
         ProductDTO Find(long id);
-        void Add(PostProductDTO item);
-        void Remove(long id);
-        void Edit(PutProductDTO item);
+        long Add(PostProductDTO item);
+        bool Remove(long id);
+        bool Edit(PutProductDTO item);
     }
 }
