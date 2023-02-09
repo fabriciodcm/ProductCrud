@@ -5,13 +5,12 @@ using System;
 
 namespace ProductApp.Application.Models
 {
-    public class PostProductDTO
+    public class ProductDTO
     {
-        [Required]
+        public long Id { get; set; }
         public string Description { get; set; }
         public DateTime? FabricationDate { get; set; }
         public DateTime? ValidateDate { get; set; }
         public long SupplierId { get; set; }
-        public Supplier Supplier { get; set; }
     }
 }

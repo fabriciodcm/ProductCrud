@@ -5,7 +5,7 @@ using System;
 
 namespace ProductApp.Application.Models
 {
-    public class ProductDTO
+    public class PutProductDTO
     {
         public long Id { get; set; }
         [Required]

@@ -8,6 +8,8 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using Microsoft.OpenApi.Models;
+using ProductApp.Application.Interfaces.Services;
+using ProductApp.Application.Services;
 using ProductApp.Data.Context;
 using ProductApp.Data.Repository;
 using ProductApp.Domain.Interfaces.Repository;
@@ -27,15 +29,17 @@ namespace ProductApp.Application
 
         public IConfiguration Configuration { get; }
 
-        // This method gets called by the runtime. Use this method to add services to the container.
         public void ConfigureServices(IServiceCollection services)
         {
 
             services.AddControllers();
+
             //Adicionado Config para rodar banco local
             services.AddDbContext<DataContext>(opt => opt.UseInMemoryDatabase("database"));
             //Dependency Injection
             services.AddTransient<IProductRepository, ProductRepository>();
+            services.AddTransient<IProductService, ProductService>();
+            services.AddTransient<IUnitOfWork, UnitOfWork>();
 
             services.AddSwaggerGen(c =>
             {
@@ -43,7 +47,6 @@ namespace ProductApp.Application
             });
         }
 
-        // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
         public void Configure(IApplicationBuilder app, IWebHostEnvironment env)
         {
             if (env.IsDevelopment())

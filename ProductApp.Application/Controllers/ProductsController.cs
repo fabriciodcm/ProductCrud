@@ -1,4 +1,5 @@
 ﻿using Microsoft.AspNetCore.Mvc;
+using ProductApp.Application.Interfaces.Services;
 using ProductApp.Application.Models;
 using ProductApp.Domain.Interfaces.Pagination;
 using ProductApp.Domain.Interfaces.Repository;
@@ -15,55 +16,45 @@ namespace ProductApp.Application.Controllers
     [ApiController]
     public class ProductsController : ControllerBase
     {
-        private IProductRepository _productRepository;
-        public ProductsController(IProductRepository productRepository) 
+        private IProductService _productService;
+        public ProductsController(IProductService productService) 
         {
-            _productRepository = productRepository;
+            _productService = productService;
         }
 
         // GET: api/<ProductsController>
         [HttpGet]
         public ProductPagination Get([FromQuery]int take = 10,[FromQuery] int skip = 0,[FromQuery] string Description = "")
         {
-            ProductPagination pagination = new ProductPagination()
-            {
-                skip = skip,
-                take = take,
-                Description = Description,
-            };
-
-            return _productRepository.Filter(pagination);
+            return _productService.Filter(take,skip,Description);
         }
 
         // GET api/<ProductsController>/5
         [HttpGet("{id}")]
-        public Product Get(long id)
+        public ProductDTO Get(long id)
         {
-            return _productRepository.Find(id);
+            return _productService.Find(id);
         }
 
         // POST api/<ProductsController>
         [HttpPost]
-        public void Post([FromBody] Product value)
+        public void Post([FromBody] PostProductDTO productDTO)
         {
-            _productRepository.Add(value);
-            _productRepository.SaveChanges();
+            _productService.Add(productDTO);
         }
 
         // PUT api/<ProductsController>/5
         [HttpPut("{id}")]
-        public void Put(long id, [FromBody] Product value)
+        public void Put(long id, [FromBody] PutProductDTO productDTO)
         {
-            _productRepository.Edit(value);
-            _productRepository.SaveChanges();
+            _productService.Edit(productDTO);
         }
 
         // DELETE api/<ProductsController>/5
         [HttpDelete("{id}")]
         public void Delete(long id)
         {
-            _productRepository.Remove(_productRepository.Find(id));
-            _productRepository.SaveChanges();
+            _productService.Remove(id);
         }
 
     }
