@@ -1,6 +1,8 @@
 ﻿using AutoMapper;
 using ProductApp.Application.Interfaces.Services;
 using ProductApp.Application.Models;
+using ProductApp.Domain.Core;
+using ProductApp.Domain.Interfaces.Core;
 using ProductApp.Domain.Interfaces.Pagination;
 using ProductApp.Domain.Interfaces.Repository;
 using ProductApp.Domain.Models;
@@ -10,31 +12,27 @@ namespace ProductApp.Application.Services
 {
     public class ProductService : IProductService
     {
-        private IProductRepository _productRepository;
-        private IUnitOfWork _uow;
+        
         private IMapper _mapper;
-        public ProductService(IProductRepository productRepository, IUnitOfWork uow, IMapper mapper)
+        private IProductCore _productCore;
+        public ProductService(IProductCore productCore, IMapper mapper)
         {
-            _productRepository = productRepository;
-            _uow = uow;
+            _productCore = productCore;
             _mapper = mapper;
         }
         public long Add(PostProductDTO item)
         {
             Product prd = _mapper.Map<Product>(item);
-            _productRepository.Add(prd);
-            _uow.Commit();
-            return prd.Id;
+            return _productCore.Add(prd);
         }
 
         public bool Edit(PutProductDTO item)
         {
-            var prd = _productRepository.Find(item.Id);
+            var prd = _productCore.Find(item.Id);
             if (prd != null)
             {
                 _mapper.Map(item, prd);
-                _productRepository.Edit(prd);
-                return _uow.Commit();
+                return _productCore.Edit(prd);
             }
             return false;
         }
@@ -47,14 +45,14 @@ namespace ProductApp.Application.Services
                 take = take,
                 Description = Description,
             };
-            _productRepository.Filter(pagination);
+            _productCore.Filter(pagination);
             var products = _mapper.Map<FilterProductDTO>(pagination);
             return products;
         }
 
         public ProductDTO Find(long id)
         {
-            var prd = _productRepository.Find(id);
+            var prd = _productCore.Find(id);
 
             if (prd != null)
                 return _mapper.Map<ProductDTO>(prd);
@@ -64,13 +62,7 @@ namespace ProductApp.Application.Services
 
         public bool Remove(long id)
         {
-            var prd = _productRepository.Find(id);
-            if (prd != null)
-            {
-                _productRepository.Remove(prd);
-                return _uow.Commit();
-            }
-            return false;
+            return _productCore.Remove(id);
         }
     }
 }

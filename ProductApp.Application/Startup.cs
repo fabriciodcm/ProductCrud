@@ -12,6 +12,8 @@ using ProductApp.Application.Interfaces.Services;
 using ProductApp.Application.Services;
 using ProductApp.Data.Context;
 using ProductApp.Data.Repository;
+using ProductApp.Domain.Core;
+using ProductApp.Domain.Interfaces.Core;
 using ProductApp.Domain.Interfaces.Repository;
 using System;
 using System.Collections.Generic;
@@ -42,6 +44,7 @@ namespace ProductApp.Application
 
             //Dependency Injection
             services.AddTransient<IProductRepository, ProductRepository>();
+            services.AddTransient<IProductCore, ProductCore>();
             services.AddTransient<IProductService, ProductService>();
             services.AddTransient<IUnitOfWork, UnitOfWork>();
 
